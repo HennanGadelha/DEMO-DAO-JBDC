@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mysql.jdbc.Statement;
+
 import db.DB;
 import db.DbException;
 import model.dao.SellerDAO;
@@ -26,7 +28,45 @@ public class SellerDaoJDBC implements SellerDAO {
 
 	@Override
 	public void insert(Seller seller) {
-		// TODO Auto-generated method stub
+
+		PreparedStatement st = null;
+		ResultSet rs = null;
+
+		try {
+
+			String sql = "INSERT INTO seller ";
+			sql += "(Name, Email, BirthDate, BaseSalary, DepartmentId) ";
+			sql += "VALUES (?, ?, ?, ?, ?)";
+
+			st = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+			st.setString(1, seller.getName());
+			st.setString(2, seller.getEmail());
+			st.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()));
+			st.setDouble(4, seller.getBaseSalary());
+			st.setInt(5, seller.getDepartmente().getId());
+
+			int rowsAffected = st.executeUpdate();
+
+			if (rowsAffected > 0) {
+
+				rs = st.getGeneratedKeys();
+				if (rs.next()) {
+					int id = rs.getInt(1);
+					seller.setId(id);
+				}
+			} else {
+				throw new DbException("Erro ineesperado, nenhuma linha foi afetada.");
+			}
+
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+
+			DB.closeStatement(st);
+			DB.closeResultset(rs);
+
+		}
 
 	}
 
