@@ -1,1 +1,1 @@
-# DEMO-DAO-JBDC
+# Repositorio exclusivo para pratica do CRUD JDBC
